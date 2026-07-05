@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: #f7f8f7;
+}
+
+.btn-primary {
+  @apply bg-brand text-white px-4 py-2 rounded-md hover:bg-brand-light transition-colors;
+}
+
+.card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-100;
+}
+
+.input-field {
+  @apply w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent;
+}
