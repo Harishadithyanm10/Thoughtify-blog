@@ -11,7 +11,6 @@ Base.metadata.create_all(bind=engine)
 
 
 def seed_categories():
-    """Adds a starter set of categories if none exist yet, so the UI isn't empty on first run."""
     db = SessionLocal()
     try:
         if db.query(models.Category).count() > 0:
@@ -28,11 +27,16 @@ seed_categories()
 
 app = FastAPI(title="Thoughtify API", version="1.0.0")
 
-origins = [settings.FRONTEND_ORIGIN, "http://localhost:5173", "http://127.0.0.1:5173"]
+# FRONTEND_ORIGIN can be a comma-separated list, e.g.
+# "https://thoughtify-blog.netlify.app,http://localhost:5173"
+origins = [o.strip() for o in settings.FRONTEND_ORIGIN.split(",") if o.strip()]
+origins += ["http://localhost:5173", "http://127.0.0.1:5173"]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    # Also allow any Netlify preview/deploy-branch subdomain of this site automatically
+    allow_origin_regex=r"https://.*--thoughtify-blog\.netlify\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
