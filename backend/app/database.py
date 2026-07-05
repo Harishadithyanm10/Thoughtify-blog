@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.pool import NullPool
 
 from .config import settings
 
@@ -16,8 +17,16 @@ def _normalize_url(url: str) -> str:
     return url
 
 
-# Supabase Postgres needs sslmode=require in most setups; pooler URLs already handle this.
-engine = create_engine(_normalize_url(settings.DATABASE_URL), pool_pre_ping=True)
+_url = _normalize_url(settings.DATABASE_URL)
+_is_sqlite = _url.startswith("sqlite")
+
+# Supabase's pooler (esp. transaction mode on port 6543) plays better with NullPool
+# than SQLAlchemy's default connection pool, since the pooler manages pooling itself.
+engine = create_engine(
+    _url,
+    pool_pre_ping=True,
+    poolclass=NullPool if not _is_sqlite else None,
+)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
